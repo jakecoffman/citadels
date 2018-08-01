@@ -1,9 +1,12 @@
 <template>
   <div class="hello">
     <h2>choose roles</h2>
+    <span v-if="!you.Roles">
+      Waiting for other player to choose role
+    </span>
     <div id="hand">
-      <div class="card character" v-for="(role, i) of you.Roles" :key="i" @click="$emit('send', {Type: 'choose', Data: i})">
-        {{role}}
+      <div class="card character" :class="{chosen: role.Chosen}" v-for="(role, i) of you.Roles" :key="i" @click="$emit('send', {Type: 'choose', Data: i})">
+        {{role.Name}}
       </div>
     </div>
   </div>
@@ -36,5 +39,8 @@
 <style scoped>
   .character {
     background: darkblue;
+  }
+  .chosen {
+    background: #adadad;
   }
 </style>
