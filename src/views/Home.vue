@@ -1,15 +1,6 @@
 <template>
   <div class="home">
-    <h2>players</h2>
-    <ul v-for="p of game.Players" :key="p.Id">
-      <li>
-        <span v-if="p.Name">{{p.Name}}</span><span v-else>Player {{p.Id}}</span>
-        <span class="badge" v-if="!p.IsBot && !p.Connected">☠</span>
-        <span class="badge" v-if="p.HasCrown">👑</span>
-        {{p.Gold}} 💰
-      </li>
-    </ul>
-
+    <a :href="'http://192.168.1.2:8080/#/' + game.Id" target="_blank">OPEN</a>
     Game: {{game}}
     <p></p>
     You: {{you}}
@@ -17,20 +8,51 @@
     <div v-if="game.State === states.lobby">
       <GameLobby :game="game" @send="send"/>
     </div>
-    <div v-else-if="game.State === states.roles">
-      <GameRoles :game="game" :you="you" @send="send"/>
+    <div v-if="you.Turn === true">
+      <div v-if="game.State === states.roles">
+        <GameRoles :game="game" :you="you" @send="send"/>
+      </div>
+      <div v-else-if="game.State === states.goldOrDraw">
+        <h3>Beginning of Turn</h3>
+        <p>Choose to receive 2 gold <b>or</b> draw 2 districts (and put one back)</p>
+        <button @click="send({Type: 'action', Data: 0})">2 Gold</button>
+        <button @click="send({Type: 'action', Data: 1})">Draw Districts</button>
+      </div>
+      <div v-else-if="game.State === states.putCardBack">
+        <h3>Put Card Back</h3>
+        <p>Choose a district from your hand that you just drew to put back</p>
+      </div>
+      <div v-else-if="game.State === states.build">
+        <h3>Build</h3>
+        <p>Select a district to build or press done</p>
+        <button>Done building</button>
+      </div>
+      <div v-else-if="game.State === states.turnEnd">
+        <h3>End Turn</h3>
+        <p>Use your remaining character abilities or press end turn</p>
+        <button>End Turn</button>
+      </div>
+      <h3>Special</h3>
+      You may use your special once during your turn.
+      <button>Use Special</button>
+      <h3>Tax Districts</h3>
+      You may tax your districts once during your turn.
+      <button>Tax Districts</button>
     </div>
-    <div v-else-if="game.State === states.goldOrDraw"></div>
-    <div v-else-if="game.State === states.putCardBack"></div>
-    <div v-else-if="game.State === states.build"></div>
-    <div v-else-if="game.State === states.end"></div>
-    <div v-else></div>
+    <div v-if="game.State === states.end"></div>
 
     <h2>districts</h2>
+    <div v-for="p of game.Players" :key="p.Id">
+      <span v-if="p.Name">{{p.Name}}</span><span v-else>Player {{p.Id}}</span>
+      <span class="badge" v-if="!p.IsBot && !p.Connected">☠</span>
+      <span class="badge" v-if="p.HasCrown">👑</span>
+      {{p.Gold}} 💰
+      <GameDistricts :player="p"/>
+    </div>
 
     <h2>hand</h2>
-    <div id="hand">
-      <div class="card" :class="getClass(card)" v-for="(card, i) of you.Hand" :key="i">
+    <div class="districts">
+      <div class="card" :class="getClass(card)" v-for="(card, i) of you.Hand" :key="i" @click="send({Type: 'build', Data: i})">
         {{card.Name}}<br/>{{card.Value}}
       </div>
     </div>
@@ -55,10 +77,12 @@
 <script>
 import GameLobby from "../components/GameLobby";
 import GameRoles from "../components/GameRoles";
+import GameDistricts from "../components/GameDistricts";
 
 export default {
   name: 'home',
   components: {
+    GameDistricts,
     GameRoles,
     GameLobby
   },
@@ -70,6 +94,7 @@ export default {
         goldOrDraw: 2,
         putCardBack: 3,
         build: 4,
+        turnEnd: 5,
         end: 5
       },
 
@@ -232,7 +257,7 @@ export default {
     background: #a8a800;
   }
 
-  #hand {
+  .districts {
     display: flex;
   }
 

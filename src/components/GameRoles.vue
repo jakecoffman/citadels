@@ -4,7 +4,7 @@
     <span v-if="!you.Roles">
       Waiting for other player to choose role
     </span>
-    <div id="hand">
+    <div class="choose">
       <div class="card character" :class="{chosen: role.Chosen}" v-for="(role, i) of you.Roles" :key="i" @click="$emit('send', {Type: 'choose', Data: i})">
         {{role.Name}}
       </div>
@@ -42,5 +42,8 @@
   }
   .chosen {
     background: #adadad;
+  }
+  .choose {
+    display: flex;
   }
 </style>
