@@ -25,12 +25,12 @@
       <div v-else-if="game.State === states.build">
         <h3>Build</h3>
         <p>Select a district to build or press done</p>
-        <button>Done building</button>
+        <button @click="send({Type: 'build', Data: -1})">Done building</button>
       </div>
       <div v-else-if="game.State === states.turnEnd">
         <h3>End Turn</h3>
         <p>Use your remaining character abilities or press end turn</p>
-        <button>End Turn</button>
+        <button @click="send({Type: 'end'})">End Turn</button>
       </div>
       <h3>Special</h3>
       You may use your special once during your turn.
@@ -52,7 +52,7 @@
 
     <h2>hand</h2>
     <div class="districts">
-      <div class="card" :class="getClass(card)" v-for="(card, i) of you.Hand" :key="i" @click="send({Type: 'build', Data: i})">
+      <div class="card" :class="getClass(card)" v-for="(card, i) of you.Hand" :key="i" @click="handCardClick(i)">
         {{card.Name}}<br/>{{card.Value}}
       </div>
     </div>
@@ -177,6 +177,13 @@ export default {
           return {purple: 1}
         default:
           console.error("Weird color:", card.Color)
+      }
+    },
+    handCardClick: function(data) {
+      if (this.game.State === this.states.putCardBack) {
+        this.send({Type: 'action', Data: data})
+      } else if (this.game.State === this.states.build) {
+        this.send({Type: 'build', Data: data})
       }
     }
   }
