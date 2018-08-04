@@ -37,13 +37,5 @@
 </script>
 
 <style scoped>
-  .character {
-    background: darkblue;
-  }
-  .chosen {
-    background: #adadad;
-  }
-  .choose {
-    display: flex;
-  }
+
 </style>
